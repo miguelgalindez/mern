@@ -3,7 +3,10 @@ const app=express()
 /**
  * A router is an instance of ExpressJS' core routing system
  * that allows developers to write mountable and modular
- * route handlers
+ * route handlers. Routers are usually referred to as
+ * mini-applications because they can be mounted to an ExpressJS
+ * application's specific routes to different mount points, paths
+ * or URIs
  */
 const miniapp=express.Router()
 
