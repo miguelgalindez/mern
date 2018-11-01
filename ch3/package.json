@@ -1,0 +1,22 @@
+{
+  "name": "mern-cookbook-ch3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "mongoose": "5.0.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miguelgalindez/mern.git"
+  },
+  "author": "Miguel Galindez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/miguelgalindez/mern/issues"
+  },
+  "homepage": "https://github.com/miguelgalindez/mern#readme"
+}
