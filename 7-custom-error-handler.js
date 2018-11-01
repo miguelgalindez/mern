@@ -42,6 +42,10 @@ app.get('/', (request, response, next)=>{
     }
 })
 
+app.get('/new', (request, response, next) => {
+    next(new Error('Triggering error from route handler with error constructor'))
+})
+
 /**
  * Defining a custom error handler middleware function
  * to send the error message back to the client's browser
