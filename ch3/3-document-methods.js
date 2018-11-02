@@ -9,21 +9,29 @@ const UserSchema=new Schema({
     likes: [String]
 })
 
-UserSchema.method('setFullName', function setFullName(v){
+UserSchema.method('setFullName', function(v){
     const fullName=String(v).split(' ')
     this.lastName=fullName[0] || ''
     this.firstName=fullName[1] || ''    
 })
+/**
+ * Document instance methods can also be defined using the
+ * methods schema property. For instance
+ *      
+ *      UserSchema.methods.setFullName = function(v){
+ *          // Do some stuff
+ *      }
+ */
 
-UserSchema.method('getFullName', ()=>{
+UserSchema.method('getFullName', function(){
     return `${this.lastName} ${this.firstName}`
 })
 
-UserSchema.method('loves', function loves(stuff){
+UserSchema.method('loves', function(stuff){
     this.likes.push(stuff)
 })
 
-UserSchema.method('dislikes', function dislikes(stuff) {
+UserSchema.method('dislikes', function(stuff) {
     this.likes=this.likes.filter(st=>st!==stuff)
 })
 
