@@ -1,5 +1,5 @@
 /**
- * Writing middleware functions for Mongoose
+ * Writing middleware functions for Mongoose - Document middleware functions
  * 
  * Middleware functions in Mongoose are also called hooks. There are four
  * types of hooks: document middleware, model middleware, aggregate middleware
@@ -75,3 +75,11 @@ connection.once('connected', async function(){
         await connection.close()
     }
 })
+
+/**
+ * When you save a document, it first triggers the validation hooks that
+ * ensure that the fields pass the rules set by built-in validation rules
+ * or custom rules. Then it will trigger the save hooks. Afterm using a 
+ * model method to retrieve the recently created user from the database,
+ * once the document is retrieved, it triggers the init hooks
+ */
