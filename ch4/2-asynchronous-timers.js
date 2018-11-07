@@ -42,9 +42,3 @@ events.emit('asyncPrint')
  * applications. If implemented correctly, you won't run into 
  * problems like this above.
  */
-
-return this.listeners('logme').reduce(
-    (promise, nextEvt) => promise.then(nextEvt),
-    Promise.resolve(),
-    )
-    
