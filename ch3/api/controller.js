@@ -38,11 +38,11 @@ api.post('/logout', isLogged, (req, res)=>{
     res.status(200).send({status: 'Bye bye !'})
 })
 
-api.post('/signup', async ()=>{
+api.post('/signup', async (req, res)=>{
     try{
         const {session, body}=req
         const {username, password}=body
-        const user=await User.signup(user, password)
+        const user=await User.signup(username, password)
         res.status(201).json({status: 'Created!'})        
     } catch(error){
         res.status(403).json({error: error.message})

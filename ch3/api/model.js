@@ -27,7 +27,7 @@ UserSchema.statics.login=async function(usr, pwd){
     return user
 }
 
-UserSchema.statics.signup=async function(usr, pwd){
+UserSchema.statics.signup=async function(usr, pwd){    
     if(pwd.length<6){
         throw new Error('Pwd must have more than 6 chars')
     }
