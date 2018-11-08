@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Socket.IO Client</title>
+</head>
+<body>
+    <h1 id="title"></h1>
+    <section id="msg"></section>
+    <button id="toggleLang">Get Content in Spanish</button>
+    <script src="http://localhost:1338/socket.io/socket.io.js">
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js">
+    </script>
+    <script type="text/babel">
+        const title = document.getElementById('title')
+        const msg = document.getElementById('msg')
+        const btn = document.getElementById('toggleLang')        
+        const manager=new io.Manager('http://localhost:1338/', {
+            path:'/socket.io'
+        })
+        /**
+         * Creating a new socket that will connect to the '/en' namespace.
+         * We will assume that this is the default connection.
+         * io.Manager allows us, in an easier way, to work with several 
+         * namespaces at the same time without having to configure each 
+         * one of them with the same options
+         */
+        const socket = manager.socket('/en')
+        /**
+         * Reserving two connections for namespaces '/es' and '/en'. A reserved connection
+         * will allow us to switch to a diferent namespace WITHOUT THE NEED
+         * OF CREATING A NEW TCP CONNECTION
+         */
+        manager.socket('/en')
+        manager.socket('/es')
+
+        socket.on('connect', ()=>{
+            socket.emit('getData')
+        })
+
+        socket.on('data', (data)=>{
+            title.textContent=data.title
+            msg.textContent=data.msg
+        })
+        btn.addEventListener('click', (event)=>{
+            console.log(socket.nsp)
+            /**
+             * Changing the snp property to switch to a diferent namespace.
+             * However, for this to happen, we had to disconnect the socket
+             * first, and call the open method to make a new connection again
+             * using the new namespace.
+             */
+            socket.nsp=socket.nsp==='/en' ? '/es': '/en'
+            btn.textContent=socket.nsp==='/en' ? 'Get content in Spanish' : 'Get content in English'
+            socket.close()
+            socket.open()
+        })
+    </script>        
+</body>
+</html>
+<!--
+    When you create one or more sockets in the same namespace, 
+    the first connection is reused, for example:
+        const first = manager.socket('/home')
+        const second = manager.socket('/home') // <- reuses first connection
+    
+    On client side, if there were no reserved connections, then
+    switching to a namespace that was not used before would result 
+    in a new connection being created. If you remove the following
+    two lines of code, you will notice that there is a slow response
+    when switching to a different namespace because a new connection
+    is created instead of being reused.
+        manager.socket('/en')
+        manager.socket('/es')
+
+    We could have been created two sockets that point to two different
+    namespaces, then we could have added two event listeners connect and
+    data to each socket, but we would have gotten repeated code.
+-->
