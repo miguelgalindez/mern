@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.IO Client</title>
+    <script src="http://localhost:1337/socket.io/socket.io.js">
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js">
+    </script>
+</head>
+
+<body>
+    <h1 id="title"></h1>
+    <form id="loginForm">
+        <input type="text" name="username" placeholder="username" />
+        <input type="password" name="password" placeholder="password" />
+        <input type="submit" value="LogIn" />
+        <output name="logErrors"></output>
+    </form>
+    <script type="text/babel">
+        const title=document.getElementById('title')
+        const logErrors=document.getElementsByName('logErrors')[0]
+        const form=document.getElementById('loginForm')
+
+        const manager=new io.Manager('http://localhost:1337', {path: '/socket.io'})
+        const namespace={
+            home: manager.socket('/home'),
+            login: manager.socket('/login')
+        }
+
+        namespace.home.on('welcome', (msg)=>{
+            title.textContent=msg
+            logErrors.textContent=''
+        })
+
+        namespace.login.on('loginSuccess', ()=>{
+            /**
+             * If the control is not passed to the next handler, then the connection 
+             * is not made. That's why after the login is successful, we ask the /home 
+             * namespace to attempt to connect again
+             */ 
+            namespace.home.connect()
+        })
+
+        namespace.login.on('loginError', err=>{
+            logErrors.textContent=err.message
+        })
+
+        form.addEventListener('submit', event=>{
+            const body=new FormData(form)            
+            namespace.login.emit('enter', {
+                username: body.get('username'),
+                password: body.get('password')
+            })
+            event.preventDefault()
+        })
+    </script>
+</body>
