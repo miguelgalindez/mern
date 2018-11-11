@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Meal Time with Redux</title>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js">
+    </script>
+    <script src="/lib/redux.js"></script>
+</head>
+
+<body>
+    <h1>What you need to do:</h1>
+    <p>
+        <b>Current time:</b>
+        <span id="display-time"></span>
+    </p>
+    <p id="display-meal"></p>
+    <button id="emulate-night">
+        Let's pretend is 00:00:00
+    </button>
+    <button id="emulate-noon">
+        Let's pretend is 12:00:00
+    </button>
+    <script type="text/babel">
+        // Extracting the createStore method from the Redux library
+        const {createStore}=Redux
+        // Defining the initial state of the application
+        const initialState={
+            kindOfMeal: null,
+            time: null
+        }
+        const meal = document.getElementById('display-meal')
+        const time = document.getElementById('display-time')
+        const btnNight = document.getElementById('emulate-night')
+        const btnNoon = document.getElementById('emulate-noon')
+        // Defining two action types
+        const SET_MEAL='SET_MEAL'
+        const SET_TIME='SET_TIME'
+        // Defining two action creators
+        const setMeal=(kindOfMeal)=>({
+            type: SET_MEAL,
+            kindOfMeal
+        })
+        const setTime=(time)=>({
+            type: SET_TIME,
+            time
+        })
+        // Defining the reducer that will transform the state when 
+        // SET_TIME and/or SET_MEAL actions are dispatched
+        const reducer=(prevState=initialState, action)=>{
+            switch (action.type) {
+                case SET_MEAL:
+                    /**
+                     * You can use the ES6 spread operator instead of Object.assign
+                     * to merge your previous state with the next one. The operator ...
+                     * copies own enumerable properties from a provided object onto
+                     * a new object, enabling us to use Shallow-cloning (excluding prototype)
+                     * also known as merging of objects
+                    */ 
+                    return {
+                        ...prevState,
+                        kindOfMeal: action.kindOfMeal
+                    }
+                case SET_TIME:
+                    /**
+                     * You can use the ES6 spread operator instead of Object.assign
+                     * to merge your previous state with the next one. The operator ...
+                     * copies own enumerable properties from a provided object onto
+                     * a new object, enabling us to use Shallow-cloning (excluding prototype)
+                     * also known as merging of objects
+                    */ 
+                    return {
+                        ...prevState,
+                        time: action.time
+                    }                                
+                default:
+                    return prevState
+            }
+        }
+        // Creating new Redux store
+        const store=createStore(reducer)
+        // Suscribing a callback function to the changes of the store. Whenever
+        // the store changes this callback will be triggered
+        store.subscribe(()=>{
+            const nextState=store.getState()
+            const comparison=[
+                { time: '23:00:00', info: 'Too late for dinner!' },
+                { time: '18:00:00', info: 'Dinner time!' },
+                { time: '16:00:00', info: 'Snacks time!' },
+                { time: '12:00:00', info: 'Lunch time!' },
+                { time: '10:00:00', info: 'Brunch time!' },
+                { time: '05:00:00', info: 'Breakfast time!' },
+                { time: '00:00:00', info: 'Too early for breakfast!' },
+            ]            
+            time.textContent=nextState.time
+            meal.textContent=comparison.find(condition=>nextState.time>=condition.time).info
+        })
+
+        btnNight.addEventListener('click', ()=>{
+            const time=new Date('1/1/1 00:00:00')
+            store.dispatch(setTime(time.toTimeString()))
+        })
+        
+        btnNoon.addEventListener('click', ()=>{
+            const time=new Date('1/1/1 12:00:00')
+            store.dispatch(setTime(time.toTimeString()))
+        })
+        
+        store.dispatch(setTime(new Date().toTimeString()))
+    </script>
+</body>
+</html>
+<!--
+    Let's consider the following interesting code snippet 
+        var obj1 = { foo: 'bar', x: 42 };
+        var obj2 = { foo: 'baz', y: 13 };
+        var mergedObj = { ...obj1, ...obj2 };
+
+    The resulting merged object will be like the following
+        Object { foo: "baz", x: 42, y: 13 }
+    
+    As you can see, the common properties are merged too
+-->
