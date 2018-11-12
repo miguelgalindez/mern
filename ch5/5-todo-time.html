@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lucky Todo</title>
+    <script src="/lib/babel.min.js">
+    </script>
+    <script src="/lib/redux.js"></script>
+</head>
+
+<body>
+    <p>
+        <b>Current time:</b>
+        <span id="current-time"></span>
+    </p>
+    <p>
+        <b>Lucky number:</b>
+        <span id="lucky-number"></span>
+    </p>
+    <h1>Todo List:</h1>
+    <ul id="todo-list"></ul>
+    <form id="todo-form">
+        <input id="todo-input" name="item" />
+        <button type="submit">Create Todo</button>
+    </form>
+    <ul id="list"></ul>
+    <script type="text/babel">
+        const timeElem = document.querySelector('#current-time')
+        const formElem = document.querySelector('#todo-form')
+        const listElem = document.querySelector('#todo-list')
+        const inputElem = document.querySelector('#todo-input')
+        const luckyElem = document.querySelector('#lucky-number')
+        
+        const {createStore, combineReducers, bindActionCreators}=Redux
+        // Defining action types
+        const TYPE={
+            SET_TIME: 'SET_TIME',
+            SET_LUCKY_NUMBER: 'SET_LUCKY_NUMBER',
+            ADD_TODO: 'ADD_TODO',
+            REMOVE_TODO: 'REMOVE_TODO',
+            TOGGLE_COMPLETED_TODO: 'TOGGLE_COMPLETED_TODO'
+        }
+        // Defining action creators
+        const actions = {
+            setTime: time=>({
+                type: TYPE.SET_TIME,
+                time
+            }),
+            setLuckyNumber: number=>({
+                type: TYPE.SET_LUCKY_NUMBER,
+                number
+            }),
+            addTodo: (id, title)=>({
+                type: TYPE.ADD_TODO,
+                id, 
+                title
+            }),
+            removeTodo: id=>({
+                type: TYPE.REMOVE_TODO,
+                id
+            }),
+            toggleTodo: id=>({
+                type: TYPE.TOGGLE_COMPLETED_TODO,
+                id
+            })
+        }
+        // Defining a reducer function to manage the slice of state that keeps the time
+        const currentTime=(state=null, action)=>{
+            switch (action.type) {
+                case TYPE.SET_TIME:
+                    return action.time
+            
+                default:
+                    return state
+            }
+        }
+        // Defining a reducer function to manage the slice of state that keeps a lucky
+        // number that will be generated every time the user loads your application
+        const luckyNumber=(state=null, action)=>{
+            switch (action.type) {
+                case TYPE.SET_LUCKY_NUMBER:
+                    return action.number
+            
+                default:
+                    return state
+            }
+        }
+        // Defining a reducer function to manage the slice of state that keeps an array
+        // of To-Do items
+        const todoList=(state=[], action)=>{
+            switch (action.type) {
+                case TYPE.ADD_TODO: 
+                    return state.concat([{
+                        id: String(action.id),
+                        title: action.title,
+                        completed: false
+                    }])
+                
+                case TYPE.REMOVE_TODO:
+                    return state.filter(todo=>todo.id!==action.id)
+                
+                case TYPE.TOGGLE_COMPLETED_TODO:
+                    return state.map(todo=>(
+                        todo.id===action.id ? {...todo, completed: !todo.completed} : todo
+                    ))
+                default:
+                    return state;
+            }
+        }
+        // Combining all reducer into a single one
+        const reducer=combineReducers({
+            currentTime,
+            luckyNumber,
+            todoList
+        })
+        // Creating a store
+        const store=createStore(reducer)
+        // Binding all action creators 
+        const {setTime, setLuckyNumber, addTodo, removeTodo, toggleTodo}=bindActionCreators(actions, store.dispatch)
+        // Subscribing listeners to the store that will update the HTML elements
+        store.subscribe(()=>{
+            const {currentTime}=store.getState()
+            timeElem.textContent=currentTime
+        })
+        store.subscribe(()=>{
+            const {luckyNumber}=store.getState()
+            luckyElem.textContent=`Your lucky nunmber is ${luckyNumber}`
+        })
+        store.subscribe(()=>{
+            const {todoList}=store.getState()
+            listElem.innerHTML=''
+            todoList.forEach(todo => {
+                const li=document.createElement('li')
+                li.textContent=todo.title
+                li.dataset.id=todo.id
+                li.setAttribute('draggable', true)
+                if(todo.completed){
+                    li.style= 'text-decoration: line-through'
+                }
+                listElem.appendChild(li)
+            });
+        })
+        // Adding an event listener fot the click event on the list HTML element
+        // that will toggle a To-do item's completed property whenever the item is clicked
+        listElem.addEventListener('click', event=>{
+            toggleTodo(event.target.dataset.id)
+        })
+        // Adding an event listener for the drag event on the list HTML element that will
+        // remove a a To-do item when this one os dragged outside of the list
+        listElem.addEventListener('drag', event=>{
+            removeTodo(event.target.dataset.id)
+        })
+        // Add an event listener for the submit event on the form that contains an input HTML
+        // element that will dispatch a new action to add a new To-do item
+        let id=0
+        formElem.addEventListener('submit', event=>{
+            event.preventDefault()
+            addTodo(++id, inputElem.value)
+            inputElem.value=''
+        })
+        // When the page loads for the first time, dispatch an action to set a lucky number and
+        // define a function that will get triggered every second to update the current time in
+        // the state of the application
+        setLuckyNumber(Math.ceil(Math.random()*1024))
+        setInterval(()=>setTime(new Date().toTimeString()), 1000)
+
+    </script>
+</body>
+
+</html>
