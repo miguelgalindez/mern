@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "node-fetch": "2.1.2"
   }
 }
