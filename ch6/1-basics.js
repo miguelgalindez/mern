@@ -39,3 +39,8 @@ ReactDOM.render(
     </div>,
     document.querySelector('[role="main"]')
 )
+/**
+ * React components' names must start with an uppercase letter. Otherwise,
+ * React will treat lowercased JSX tags as React elements
+*/
+
